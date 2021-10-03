@@ -19,11 +19,21 @@ class ProgramController extends AbstractController
 {
     /**
      * @Route ("/", methods={"GET"}, name="index")
+     * @param ProgramRepository $programRepository
      * @return Response
      */
     public function index(ProgramRepository $programRepository): Response
     {
-        $programs = $programRepository->findAll();
-        return $this->json($programs);
+        $programs = $programRepository->programFindAll();
+
+         return $this->json($programs);
+
+//        $encoders = [new JsonEncoder()];
+//        $normalizers = [new ObjectNormalizer()];
+//        $serializer = new Serializer($normalizers, $encoders);
+//        $jsonContent = $serializer->serialize($programs, 'json');
+//        $response = new Response($jsonContent);
+//        $response->headers->set('Content-Type', 'application/json');
+//        return $response;
     }
 }
