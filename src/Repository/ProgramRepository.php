@@ -23,14 +23,13 @@ class ProgramRepository extends ServiceEntityRepository
      * Return an array of programs with category name
      * @return array
      */
-    public function programFindAll(): array
+    public function apiFindAll(): array
     {
         $queryBuilder = $this->createQueryBuilder('p')
             ->select('p.id', 'p.title', 'p.summary', 'p.poster', 'c.name as category_name')
             ->leftJoin('App\Entity\Category', 'c', 'WITH', 'p.category = c.id');
 
         return $queryBuilder->getQuery()->getResult();
-
     }
 
     // /**

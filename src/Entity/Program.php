@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\ProgramRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ProgramRepository::class)
@@ -14,27 +15,32 @@ class Program
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"rest"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"rest"})
      */
     private $title;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"rest"})
      */
     private $summary;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"rest"})
      */
     private $poster;
 
     /**
      * @ORM\ManyToOne(targetEntity=Category::class)
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"rest"})
      */
     private $category;
 
