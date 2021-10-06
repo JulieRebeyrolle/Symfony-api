@@ -4,18 +4,10 @@ namespace App\Controller;
 
 use App\Repository\CategoryRepository;
 use App\Repository\ProgramRepository;
-use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
-use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
-
 
 /**
  * @Route("/category", name="category_")
@@ -29,8 +21,13 @@ class CategoryController extends AbstractController
      */
     public function index(CategoryRepository $categoryRepository): Response
     {
-        $categories = $categoryRepository->findAll([]);
-        return $this->json($categories);
+        $categories = $categoryRepository->findAll();
+
+        return $this->json(
+            $categories,
+            200, [],
+            [AbstractNormalizer::GROUPS => ['rest']]
+        );
     }
 
     /**
@@ -38,7 +35,9 @@ class CategoryController extends AbstractController
      * @param CategoryRepository $categoryRepository
      * @return Response
      */
-    public function show(string $categoryName, CategoryRepository $categoryRepository, ProgramRepository $programRepository): Response
+    public function show(string $categoryName,
+                         CategoryRepository $categoryRepository,
+                         ProgramRepository $programRepository): Response
     {
         $category = $categoryRepository->findOneBy(['name' => $categoryName]);
 
@@ -51,14 +50,10 @@ class CategoryController extends AbstractController
             throw $this->createNotFoundException('No program found for : ' . $categoryName);
         }
 
-        $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
-        $serializer = new Serializer([new ObjectNormalizer($classMetadataFactory)], [new JsonEncoder()]);
-        $jsonContent = $serializer->serialize(
+        return $this->json(
             ['category' => $category, 'programs' => $programs],
-            'json',
+            200, [],
             [AbstractNormalizer::IGNORED_ATTRIBUTES => ['category'], AbstractNormalizer::GROUPS => ['rest']]
         );
-
-        return new JsonResponse($jsonContent, 200, ['Content-Type'=> 'application/json'], true);
     }
 }
