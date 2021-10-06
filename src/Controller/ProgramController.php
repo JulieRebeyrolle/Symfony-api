@@ -21,10 +21,8 @@ class ProgramController extends AbstractController
      */
     public function index(ProgramRepository $programRepository): Response
     {
-        $programs = $programRepository->findAll();
-
         return $this->json(
-            $programs,
+            $programRepository->findAll(),
             200, [],
             [AbstractNormalizer::GROUPS => ['rest']]
         );

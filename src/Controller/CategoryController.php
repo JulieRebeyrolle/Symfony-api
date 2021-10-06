@@ -21,10 +21,9 @@ class CategoryController extends AbstractController
      */
     public function index(CategoryRepository $categoryRepository): Response
     {
-        $categories = $categoryRepository->findAll();
 
         return $this->json(
-            $categories,
+            $categoryRepository->findAll(),
             200, [],
             [AbstractNormalizer::GROUPS => ['rest']]
         );
@@ -32,7 +31,9 @@ class CategoryController extends AbstractController
 
     /**
      * @Route ("/{categoryName}", methods={"GET"}, name="show")
+     * @param string $categoryName
      * @param CategoryRepository $categoryRepository
+     * @param ProgramRepository $programRepository
      * @return Response
      */
     public function show(string $categoryName,
