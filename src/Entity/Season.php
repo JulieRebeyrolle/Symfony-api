@@ -6,6 +6,7 @@ use App\Repository\SeasonRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=SeasonRepository::class)
@@ -16,32 +17,39 @@ class Season
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"rest"})
+     * e
      */
     private $id;
 
     /**
      * @ORM\ManyToOne(targetEntity=Program::class, inversedBy="seasons")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"rest"})
      */
     private $program;
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups({"rest"})
      */
     private $number;
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups({"rest"})
      */
     private $year;
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @Groups({"rest"})
      */
     private $description;
 
     /**
      * @ORM\OneToMany(targetEntity=Episode::class, mappedBy="season")
+     * @Groups({"rest"})
      */
     private $episodes;
 
