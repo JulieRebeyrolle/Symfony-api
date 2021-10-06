@@ -8,10 +8,13 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 
 /**
  * @ORM\Entity(repositoryClass=ProgramRepository::class)
+ * @UniqueEntity("title", message="Le titre {{ value }} existe déjà")
  */
 class Program
 {
@@ -26,18 +29,23 @@ class Program
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"rest"})
+     * @Assert\NotBlank
+     * @Assert\Length (max="255", maxMessage="Le titre saisi est trop long, il ne devrait pas dépasser {{ limit }} caractères")
      */
     private $title;
 
     /**
      * @ORM\Column(type="text")
      * @Groups({"rest"})
+     * @Assert\NotBlank
      */
     private $summary;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups({"rest"})
+     * @Assert\Url
+     * @Assert\Length (max="255", maxMessage="L'url saisie est trop longue, elle ne devrait pas dépasser {{ limit }} caractères")
      */
     private $poster;
 
@@ -45,6 +53,7 @@ class Program
      * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="programs")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"rest"})
+     * @Assert\NotBlank
      */
     private $category;
 
