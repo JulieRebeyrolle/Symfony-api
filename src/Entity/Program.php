@@ -81,7 +81,7 @@ class Program
 
     public function setTitle(string $title): self
     {
-        $this->title = $title;
+        $this->title = trim($title);
 
         return $this;
     }
@@ -93,7 +93,7 @@ class Program
 
     public function setSummary(string $summary): self
     {
-        $this->summary = $summary;
+        $this->summary = trim($summary);
 
         return $this;
     }

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Program;
+use App\Repository\CategoryRepository;
 use App\Repository\ProgramRepository;
 use App\Repository\SeasonRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -86,24 +87,33 @@ class ProgramController extends AbstractController
      * @param ValidatorInterface $validator
      * @return Response
      */
-    public function new(Request $request, ValidatorInterface $validator): Response
+    public function new(Request $request, ValidatorInterface $validator, CategoryRepository $categoryRepository): Response
     {
-        try {
-            $program = $this->get('serializer')->deserialize($request->getContent(), Program::class, 'json');
-            $entityManager = $this->getDoctrine()->getManager();
+        $content = json_decode($request->getContent(), true);
+        $program = new Program();
+        $program->setTitle($content['title'])->setSummary($content['summary']);
 
-            $errors = $validator->validate($program);
-
-            if (count($errors) > 0) {
-                return $this->json(['success' => false, 'status' => '400', 'errors' => $errors],400);
-            }
-
-            $entityManager->persist($program);
-            $entityManager->flush();
-
-            return $this->json(["success" => true, "data" => $program], 201, [], [AbstractNormalizer::GROUPS => ['rest']]);
-        } catch (NotEncodableValueException $e) {
-            return $this->json(['success' => false, 'status' => '400', 'error' => $e->getMessage()],400);
+        if ($categoryRepository->findOneBy(['name' => $content['category']])) {
+            $program->setCategory($categoryRepository->findOneBy(['name' => $content['category']]));
+        } else {
+            return $this->json(['success' => false, 'status' => '404', 'errors' => 'Catégorie non trouvée'],404);
         }
+
+        if (isset($content['poster'])) {
+            $program->setPoster($content['poster']);
+        }
+
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $errors = $validator->validate($program);
+
+        if (count($errors) > 0) {
+            return $this->json(['success' => false, 'status' => '400', 'errors' => $errors],400);
+        }
+
+        $entityManager->persist($program);
+        $entityManager->flush();
+
+        return $this->json(["success" => true, "data" => $program], 201, [], [AbstractNormalizer::GROUPS => ['rest']]);
     }
 }
