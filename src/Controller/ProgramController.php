@@ -9,9 +9,14 @@ use App\Repository\SeasonRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -62,7 +67,7 @@ class ProgramController extends AbstractController
      * @param ProgramRepository $programRepository
      * @return Response
      */
-    public function seasonShow(int $programId, int $seasonId, SeasonRepository $seasonRepository, ProgramRepository $programRepository): Response
+    public function seasonShow(int $programId, int $seasonId, SeasonRepository $seasonRepository, ProgramRepository $programRepository, ): Response
     {
         $program = $programRepository->findOneBy(['id' => $programId]);
         if (!$program) {
@@ -87,21 +92,28 @@ class ProgramController extends AbstractController
      * @param ValidatorInterface $validator
      * @return Response
      */
-    public function new(Request $request, ValidatorInterface $validator, CategoryRepository $categoryRepository): Response
+    public function new(Request $request, ValidatorInterface $validator, CategoryRepository $categoryRepository, SerializerInterface $serializer): Response
     {
-        $content = json_decode($request->getContent(), true);
-        $program = new Program();
-        $program->setTitle($content['title'])->setSummary($content['summary']);
+//        $content = json_decode($request->getContent(), true);
+//        $program = new Program();
+//        $program->setTitle($content['title'])->setSummary($content['summary']);
+//
+//        if ($categoryRepository->findOneBy(['name' => $content['category']])) {
+//            $program->setCategory($categoryRepository->findOneBy(['name' => $content['category']]));
+//        } else {
+//            return $this->json(['success' => false, 'status' => '404', 'errors' => 'Catégorie non trouvée'],404);
+//        }
+//
+//        if (isset($content['poster'])) {
+//            $program->setPoster($content['poster']);
+//        }
+        $encoders = [new JsonEncoder()];
+        $normalizer = new ObjectNormalizer(null, null, null, new ReflectionExtractor());
+        $serializer = new Serializer([$normalizer], $encoders);
 
-        if ($categoryRepository->findOneBy(['name' => $content['category']])) {
-            $program->setCategory($categoryRepository->findOneBy(['name' => $content['category']]));
-        } else {
-            return $this->json(['success' => false, 'status' => '404', 'errors' => 'Catégorie non trouvée'],404);
-        }
+        $program = $serializer->deserialize($request->getContent(), Program::class, 'json');
 
-        if (isset($content['poster'])) {
-            $program->setPoster($content['poster']);
-        }
+        dd($program);
 
         $entityManager = $this->getDoctrine()->getManager();
 
